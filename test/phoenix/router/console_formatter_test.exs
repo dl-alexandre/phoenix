@@ -33,6 +33,28 @@ defmodule Phoenix.Router.ConsoleFormatterTest do
            """
   end
 
+  defmodule RouterTestHostRoutes do
+    use Phoenix.Router
+
+    scope "/", host: "api.example.com" do
+      get "/users", RouteFormatter.PageController, :index, as: :api_users
+    end
+
+    scope "/", host: "admin.example.com" do
+      get "/users", RouteFormatter.PageController, :index, as: :admin_users
+    end
+
+    get "/public", RouteFormatter.PageController, :show, as: :public
+  end
+
+  test "format routes with host constraints" do
+    assert draw(RouterTestHostRoutes) == """
+           [api.example.com]    api_users_path  GET     /users   RouteFormatter.PageController :index
+           [admin.example.com]  admin_users_path  GET     /users   RouteFormatter.PageController :index
+                                  public_path  GET     /public  RouteFormatter.PageController :show
+           """
+  end
+
   defmodule RouterTestResources do
     use Phoenix.Router
     resources "/images", RouteFormatter.ImageController
